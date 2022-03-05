@@ -2,8 +2,8 @@
 {
     public class ItemSupplyProperties
     {
-        public uint MinimumPurchaseAmount { get; set; }
-        public uint MaximumPurchaseAmount { get; set; }
+        public double MinimumPurchaseAmount { get; set; }
+        public double MaximumPurchaseAmount { get; set; }
         public double UnitaryPurchasingCost { get; set; }
 
     }

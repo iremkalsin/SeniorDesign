@@ -14,7 +14,7 @@ namespace SeniorDesignImplementation.Objects
         public double UnitaryProducingCost { get; set; }
         public double SetupCost { get; set; }
         public List<int> PrerequisiteItems { get; set; }
-        public Dictionary<int, int> FixedCostsOfItem { get; set; }
+        public Dictionary<int, double> FixedCostsOfItem { get; set; }
         public Dictionary<int, double> ProductionCostsOfItem { get; set; }
         public Dictionary<int, double> HoldingCostsOfItem { get; set; }
         public Dictionary<int, double> BackorderCostsOfItem { get; set; }

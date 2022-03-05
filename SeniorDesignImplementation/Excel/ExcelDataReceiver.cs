@@ -10,6 +10,8 @@ namespace SeniorDesignImplementation
 {
     public class ExcelDataReceiver
     {
+        static int itemCount;
+
         public XSSFWorkbook workbook;
         public ExcelDataReceiver(string filePath)
         {
@@ -39,7 +41,7 @@ namespace SeniorDesignImplementation
                         periodicDemands.Add(new Demand()
                         {
                             Period = i,
-                            Amount = (int)currentRow.GetCell(i).NumericCellValue
+                            Amount = currentRow.GetCell(i).NumericCellValue
                         });
                     }
                     demands.Add(items[rowNumber - 1], periodicDemands);
@@ -64,7 +66,7 @@ namespace SeniorDesignImplementation
                         periodicProductionCapacities.Add(new Capacity()
                         {
                             Period = i,
-                            Amount = (int)currentRow.GetCell(i).NumericCellValue
+                            Amount = currentRow.GetCell(i).NumericCellValue
                         });
                     }
                     productionCapacities.Add(items[rowNumber - 1], periodicProductionCapacities);
@@ -94,14 +96,14 @@ namespace SeniorDesignImplementation
                 {
                     var currentRow = excelItemsWorksheet.GetRow(rowNumber);
 
-                    Dictionary<int, int> fixedCosts = new Dictionary<int, int>();
+                    Dictionary<int, double> fixedCosts = new Dictionary<int, double>();
                     Dictionary<int, double> productionCosts = new Dictionary<int, double>();
                     Dictionary<int, double> holdingCosts = new Dictionary<int, double>();
                     Dictionary<int, double> backorderCosts = new Dictionary<int, double>();
 
                     for (int c = 1; c < excelFixedCostsWorksheet.GetRow(rowNumber).LastCellNum; c++)
                     {
-                        fixedCosts.Add((int)excelFixedCostsWorksheet.GetRow(0).GetCell(c).NumericCellValue, (int)excelFixedCostsWorksheet.GetRow(rowNumber).GetCell(c).NumericCellValue);
+                        fixedCosts.Add((int)excelFixedCostsWorksheet.GetRow(0).GetCell(c).NumericCellValue, excelFixedCostsWorksheet.GetRow(rowNumber).GetCell(c).NumericCellValue);
                         productionCosts.Add((int)excelProductionCostsWorksheet.GetRow(0).GetCell(c).NumericCellValue, excelProductionCostsWorksheet.GetRow(rowNumber).GetCell(c).NumericCellValue);
                         holdingCosts.Add((int)excelHoldingCostsWorksheet.GetRow(0).GetCell(c).NumericCellValue, excelHoldingCostsWorksheet.GetRow(rowNumber).GetCell(c).NumericCellValue);
                         backorderCosts.Add((int)excelBackorderCostsWorksheet.GetRow(0).GetCell(c).NumericCellValue, excelBackorderCostsWorksheet.GetRow(rowNumber).GetCell(c).NumericCellValue);
@@ -128,6 +130,7 @@ namespace SeniorDesignImplementation
                     Console.WriteLine(currentRow);
                 }
             }
+            itemCount = items.Count;
             return items;
         }
         public List<Supplier> GetSuppliers()
@@ -167,13 +170,31 @@ namespace SeniorDesignImplementation
                     {
                         var itemSupplyProperty = new ItemSupplyProperties();
                         itemSupplyProperty.UnitaryPurchasingCost = currentPriceRow.GetCell(i + 1).NumericCellValue;
-                        itemSupplyProperty.MinimumPurchaseAmount = (uint)minimumAmountsRow.GetCell(i + 1).NumericCellValue;
-                        itemSupplyProperty.MaximumPurchaseAmount = (uint)maximumAmountsRow.GetCell(i + 1).NumericCellValue;
+                        itemSupplyProperty.MinimumPurchaseAmount = minimumAmountsRow.GetCell(i + 1).NumericCellValue;
+                        itemSupplyProperty.MaximumPurchaseAmount = maximumAmountsRow.GetCell(i + 1).NumericCellValue;
                         suppliers[i].Items.Add(item, itemSupplyProperty);
                     }
                     Console.WriteLine(currentPriceRow);
                 }
             }
+        }
+
+        public double[,] TakeCoefficients()
+        {
+            double[,] coefficients = new double[itemCount, itemCount];
+            var excelTransCoeffsWorksheet = GetWorksheet("TransformationCoeffs");
+            for (int rowNumber = 1; rowNumber <= excelTransCoeffsWorksheet.LastRowNum; rowNumber++)
+            {
+                if (excelTransCoeffsWorksheet.GetRow(rowNumber) != null) //null is when the row only contains empty cells 
+                {
+                    for (int columnNumber = 1; columnNumber <= excelTransCoeffsWorksheet.LastRowNum; columnNumber++)
+                    {
+                        var currentRow = excelTransCoeffsWorksheet.GetRow(rowNumber);
+                        coefficients[rowNumber - 1, columnNumber - 1] = currentRow.GetCell(columnNumber).NumericCellValue;
+                    }
+                }
+            }
+            return coefficients;
         }
     }
 }

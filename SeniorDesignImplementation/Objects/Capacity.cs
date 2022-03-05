@@ -9,6 +9,6 @@ namespace SeniorDesignImplementation.Objects
     public class Capacity
     {
         public int Period { get; set; }
-        public int Amount { get; set; }
+        public double Amount { get; set; }
     }
 }
